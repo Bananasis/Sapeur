@@ -19,6 +19,7 @@ class Game:
         self.board = Board(w, h, self.players.keys())
         self.turn_order = list(self.players.keys())
         self.blowup = BlowUpStrategy(self.players)
+        self.setup = SetUpStrategy(self.board)
         self.get_mine = MineCounterStrategy(self.players)
         self.get_reveal = RevealCounterStrategy(self.players)
         self.end = WinStrategy(self.players)
@@ -79,8 +80,8 @@ class Game:
 
         else:
             if self.get_mine(player_id):
-                self.board.add_mine(x, y)
-                update_cells = [self.board.get(x, y)] + self.board.get_neighbors(x, y)
+                if self.setup(x, y):
+                    update_cells = [self.board.get(x, y)] + self.board.get_neighbors(x, y)
         if update_cells:
             self.next_turn()
         return update_cells, self.end(), self.turn

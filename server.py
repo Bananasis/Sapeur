@@ -22,12 +22,15 @@ class Server(Thread):
 
     def run(self):
         while True:
-            client_sock, address = self.socket.accept()
-            print('Accepted connection from {}:{}'.format(address[0], address[1]))
-            pl_thread = PlayerHandlingThread(client_sock, self.player_id, self)
-            self.player_threads[self.player_id] = pl_thread
-            pl_thread.run()
-            self.player_id += 1
+            try:
+                client_sock, address = self.socket.accept()
+                print('Accepted connection from {}:{}'.format(address[0], address[1]))
+                pl_thread = PlayerHandlingThread(client_sock, self.player_id, self)
+                self.player_threads[self.player_id] = pl_thread
+                pl_thread.start()
+                self.player_id += 1
+            except Exception as error:
+                print(error)
 
     def create_lobby(self, player):
         lobby = Lobby(self.lobby_id)
@@ -41,6 +44,9 @@ class Server(Thread):
     def send_lobby_list(self):
         for pt in self.player_threads.values():
             pt.send_lobby_list()
+
+    def disconnect(self, player_thread):
+        self.player_threads.pop(player_thread.id)
 
 
 class PlayerHandlingThread(Thread):
@@ -67,7 +73,12 @@ class PlayerHandlingThread(Thread):
         self.request_manager.make_request(self.id, "server_id_request")
         self.send_lobby_list()
         while True:
-            self.request_manager.get_request()
+            try:
+                self.request_manager.get_request()
+            except socket.error as error:
+                print(error)
+                self.server.disconect(self)
+                break
 
     def create_lobby(self):
         self.lobby = self.server.create_lobby(self)

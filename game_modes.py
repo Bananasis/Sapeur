@@ -71,6 +71,20 @@ class SingleTrapStrategy(SetTrapStrategy):
                 board.add_mine(x, y)
 
 
+class SetUpStrategy:
+    def __init__(self, board):
+        self.board = board
+        pass
+
+    def __call__(self, x, y):
+        if not self.board.is_boobytrapped(x, y):
+            self.board.add_mine(x, y)
+            return True
+        return False
+
+    pass
+
+
 class LooseStrategy:
     def __init__(self, players):
         self.player_lost = dict.fromkeys(players, False)

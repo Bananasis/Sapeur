@@ -5,12 +5,13 @@ from kivy.uix.behaviors import ButtonBehavior
 
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
+from kivy.uix.screenmanager import ScreenManager, Screen
 
 Config.set('graphics', 'resizable', True)
 from kivy.uix.image import Image
 
 
-class SapeurApp(App):
+class TestApp(App):
     def __init__(self, game, **kwargs):
         super().__init__(**kwargs)
         self.game = game
@@ -79,3 +80,26 @@ class Cell(ButtonBehavior, Image):
 
 def make_move(instance):
     instance.parent.parent.game.make_move((instance.cell.x, instance.cell.y))
+
+
+class MenuScreen(Screen):
+    pass
+
+
+class SettingsScreen(Screen):
+    pass
+
+
+class SapeurApp(App):
+
+    def build(self):
+        # Create the screen manager
+        sm = ScreenManager()
+        sm.add_widget(MenuScreen(name='menu'))
+        sm.add_widget(SettingsScreen(name='settings'))
+
+        return sm
+
+
+if __name__ == '__main__':
+    SapeurApp().run()
