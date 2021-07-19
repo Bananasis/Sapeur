@@ -1,6 +1,61 @@
 #:kivy 1.0.9
 
-<NewButton>:
+
+<MenuButton@Button>:
+    txt: "placeholder"
+    srcs: 'resources/empty-block.png'
+    FloatLayout:
+        pos: self.parent.pos
+        size: self.parent.size
+
+        Image:
+            y: self.parent.y
+            x: self.parent.x
+            size: self.parent.width, self.parent.height
+            source: self.parent.parent.srcs
+            allow_stretch: True
+        Label:
+            y: self.parent.y
+            x: self.parent.x
+            size: self.parent.width, self.parent.height
+            text: self.parent.parent.txt
+
+<MenuScreen>:
+
+
+    GridLayout:
+        cols:2
+        MenuButton:
+            on_press: root.manager.current = 'settings'
+            srcs:'resources/empty-block.png'
+            txt:'Singleplayer'
+
+        MenuButton:
+            on_press: root.manager.current = 'settings'
+            srcs:'resources/empty-block.png'
+            txt:'Exit'
+
+        MenuButton:
+            on_press: root.manager.current = 'settings'
+            srcs:'resources/empty-block.png'
+            txt:'Multiplayer'
+
+        MenuButton:
+            on_press: root.manager.current = 'settings'
+            srcs:'resources/empty-block.png'
+            txt:'Settings'
+
+<SettingsScreen>:
+    BoxLayout:
+        MenuButton:
+            on_press: root.manager.current = 'menu'
+            srcs:'resources/8.png'
+            txt:'LOLOLOLOLOL'
+
+
+
+
+
 
 
 
