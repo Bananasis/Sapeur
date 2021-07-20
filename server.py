@@ -1,8 +1,11 @@
 import socket
+import threading
 from threading import Thread
 
 from lobby import Lobby
 from request import RequestManager, id_request, lobby_list_request, no_cariage_request, game_request, pos_recuest
+
+lock = threading.Lock()
 
 
 class Server(Thread):
@@ -35,13 +38,15 @@ class Server(Thread):
                 print(error)
 
     def create_lobby(self, player):
-        lobby = Lobby(self.lobby_id)
-        self.lobby[self.lobby_id] = lobby
-        self.lobby_id += 1
-        return self.lobby[self.lobby_id - 1].add_player(player)
+        with lock:
+            self.lobby_id += 1
+            lobby = Lobby(self.lobby_id)
+            self.lobby[self.lobby_id] = lobby
+            return self.lobby[self.lobby_id].add_player(player)
 
     def add_player_to_lobby(self, player, lobby_id):
-        return self.lobby[lobby_id].add_player(player)
+        with lock:
+            return self.lobby[lobby_id].add_player(player)
 
     def send_lobby_list(self):
         for pt in self.player_threads.values():
@@ -84,8 +89,9 @@ class PlayerHandlingThread(Thread):
 
     def create_lobby(self):
         self.lobby = self.server.create_lobby(self)
-        self.request_manager.make_request(self.id, "lobby_id_request")
         self.server.send_lobby_list()
+        self.request_manager.make_request(self.id, "lobby_id_request")
+
 
     def make_move(self, x, y):
         if self.lobby:

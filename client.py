@@ -53,12 +53,17 @@ class Client(Thread):
     def start_game(self):
         if self.lobby_id in self.lobby_dict:
             self.board = self.lobby_dict[self.lobby_id].get_board()
+            self.game_window.start_game(self)
+
 
     def set_server_id(self, pid):
         self.server_id = pid
 
     def make_move(self, pos):
         self.request_manager.make_request(pos, "move_pos_request")
+
+    def request_start_game(self):
+        self.request_manager.make_request(None, "start_game_nc_request")
 
     def set_lobby_id(self, lid):
         self.lobby_id = lid
@@ -72,4 +77,4 @@ class Client(Thread):
     def update_board(self, view):
         if self.board:
             self.board.update(view)
-            self.game_window.update_board()
+            self.game_window.gs.update_board()

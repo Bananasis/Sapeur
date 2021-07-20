@@ -17,33 +17,45 @@ Config.set('graphics', 'resizable', True)
 from kivy.uix.image import Image
 
 
-class TestApp(App):
-    def __init__(self, game, **kwargs):
-        super().__init__(**kwargs)
-        self.game = game
-        self.sg = SapeurGame(game)
+class GameScreen(Screen):
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.sg = SapeurGame()
+        self.add_widget(self.sg)
+        self.game = None
 
-    def build(self):
-        self.sg = SapeurGame(self.game)
-        return self.sg
+    def start_game(self, game):
+        self.game = game
+        Clock.schedule_once(lambda _: self.sg.start_game(game))
+
+    def update_board(self):
+        Clock.schedule_once(lambda _: self.sg.gb.update_board())
 
 
 class SapeurGame(FloatLayout):
-    def __init__(self, game, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.gb = GameBoard()
+        self.add_widget(self.gb)
+        self.game = None
+
+    def start_game(self, game):
         self.game = game
-        self.board = GameBoard(game.board)
-        game.game_window = self.board
-        self.add_widget(self.board)
+        self.gb.start_game(game.board)
+
+    pass
 
 
 class GameBoard(GridLayout):
-    def __init__(self, board, **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.cells = {}
+        self.board = None
+
+    def start_game(self, board):
         self.board = board
         self.cols = board.width
         self.rows = board.height
-        self.cells = {}
         for i in range(board.width):
             for j in range(board.height):
                 cell = Cell(board.cell_list[i][j], source='resources/empty-block.png')
@@ -110,10 +122,6 @@ class LobbyListScreen(Screen):
     pass
 
 
-class GameScreen(Screen):
-    pass
-
-
 class SettingsScreen(Screen):
     pass
 
@@ -133,6 +141,7 @@ class SapeurApp(App):
         self.lobby = None
         self.ll = None
         self.sm = None
+        self.gs = None
 
     def sceldue_ll_update(self):
         Clock.schedule_once(lambda _: self.ll_update())
@@ -140,14 +149,21 @@ class SapeurApp(App):
     def ll_update(self):
         for li, lb in self.lobby_buttons.items():
             if li not in self.client.lobby_dict.keys():
-                self.ll.ids.layout.ids.scroll.remove_widget(lb)
+                self.ll.ids['container'].remove_widget(lb)
                 self.lobby_buttons.pop(li)
         for li, l in self.client.lobby_dict.items():
             if li not in self.lobby_buttons.keys():
-                mb = LobbyButton()
+                mb = LobbyButton(text="aaaaaaaaaaaaaaaa")
                 mb.on_press = lambda: self.client.join_lobby(li)
                 self.lobby_buttons[li] = mb
-                self.ll.add_widget(mb)
+                self.ll.ids['container'].add_widget(mb)
+
+    def sceldue_start_game(self, board):
+        Clock.schedule_once(lambda _: self.start_game(board))
+
+    def start_game(self, board):
+        self.gs.start_game(board)
+        self.sm.current = 'game'
 
     def join_lobby(self):
         Clock.schedule_once(lambda _: self.set_current("lobby"))
@@ -158,13 +174,14 @@ class SapeurApp(App):
     def build(self):
         # Create the screen manager
         self.lobby = LobbyScreen(name='lobby')
+        self.gs = GameScreen(name='game')
         self.ll = LobbyListScreen(name='lobby_list')
         self.sm = ScreenManager(transition=SlideTransition(direction="right"))
         self.sm.add_widget(MenuScreen(name='menu'))
         self.sm.add_widget(SettingsScreen(name='settings'))
         self.sm.add_widget(LobbyListScreen(name='lobby_list'))
         self.sm.add_widget(self.lobby)
-        self.sm.add_widget(GameScreen(name='game'))
+        self.sm.add_widget(self.gs)
         return self.sm
 
 

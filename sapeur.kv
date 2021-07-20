@@ -83,17 +83,28 @@
 
 
 <LobbyButton@Button>:
+    size_hint: (None,None)
+    text: "bla"
+
 
 <LobbyListScreen>:
     FloatLayout:
-        id: 'layout'
+        id: layout
         size_hint: (1,1)
         pos_hint: {'center_y': .5,'center_x': .5}
         BackGround:
         ScrollView:
+            size_hint: (1,1)
+            pos_hint: {'center_y': .5,'center_x': .5}
             id:scroll
             do_scroll_x: False
             do_scroll_y: True
+            GridLayout:
+                id: container
+                cols: 1
+
+
+
 
         MenuButton:
             width: min([self.parent.width,self.parent.height])/5
@@ -129,16 +140,20 @@
             on_press:
                 self.srcs = 'resources/bomb-at-clicked-block.png'
                 self.txt = ''
+                app.client.request_start_game()
             srcs:'resources/empty-block.png'
             txt:'Back'
 
 
-
-
+<GameScreen@Screen>:
 
 <SapeurGame>:
+
     size_hint: 1, None
-    size: self.width, self.width
+    width: self.width
+    height: self.width
 <GameBoard>:
-    size_hint: 1, None
-    size: self.width, self.width
+
+    size_hint: 1, 1
+    width: self.width
+    height: self.width
