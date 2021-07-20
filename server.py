@@ -49,8 +49,9 @@ class Server(Thread):
             return self.lobby[lobby_id].add_player(player)
 
     def send_lobby_list(self):
-        for pt in self.player_threads.values():
-            pt.send_lobby_list()
+        with lock:
+            for pt in self.player_threads.values():
+                pt.send_lobby_list()
 
     def disconnect(self, player_thread):
         self.player_threads.pop(player_thread.id)
@@ -90,8 +91,7 @@ class PlayerHandlingThread(Thread):
     def create_lobby(self):
         self.lobby = self.server.create_lobby(self)
         self.server.send_lobby_list()
-        self.request_manager.make_request(self.id, "lobby_id_request")
-
+        self.request_manager.make_request(self.lobby.id, "lobby_id_request")
 
     def make_move(self, x, y):
         if self.lobby:
@@ -100,7 +100,8 @@ class PlayerHandlingThread(Thread):
     def join_lobby(self, lobby_id):
         self.lobby = self.server.add_player_to_lobby(self, lobby_id)
         if self.lobby:
-            self.request_manager.make_request(self.id, "lobby_id_request")
+            self.server.send_lobby_list()
+            self.request_manager.make_request(self.lobby.id, "lobby_id_request")
 
     def leave_lobby(self):
         self.lobby = self.lobby.remove_player(self)

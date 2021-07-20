@@ -4,7 +4,27 @@
 
 
 <LobbyButton@Button>:
+    size_hint_y: None
+    size_hint_x: None
+    height: self.width
 
+    txt: "placeholder"
+    srcs: 'resources/empty-block.png'
+    FloatLayout:
+        pos: self.parent.pos
+        size: self.parent.size
+
+        Image:
+            y: self.parent.y
+            x: self.parent.x
+            size: self.parent.width, self.parent.height
+            source: self.parent.parent.srcs
+            allow_stretch: True
+        Label:
+            y: self.parent.y
+            x: self.parent.x
+            size: self.parent.width, self.parent.height
+            text: self.parent.parent.txt
 <MenuButton@Button>:
     size_hint_y: None
     size_hint_x: None
@@ -80,28 +100,23 @@
                 srcs:'resources/empty-block.png'
                 txt:'Settings'
 
-
-
-<LobbyButton@Button>:
-    size_hint: (None,None)
-    text: "bla"
-
-
 <LobbyListScreen>:
     FloatLayout:
+
         id: layout
         size_hint: (1,1)
         pos_hint: {'center_y': .5,'center_x': .5}
         BackGround:
-        ScrollView:
-            size_hint: (1,1)
-            pos_hint: {'center_y': .5,'center_x': .5}
-            id:scroll
-            do_scroll_x: False
-            do_scroll_y: True
-            GridLayout:
-                id: container
-                cols: 1
+
+
+        GridLayout:
+            size_hint_y: 1
+            padding : 30,30
+            spacing: 10, 10
+            id: container
+            cols: 1
+
+
 
 
 

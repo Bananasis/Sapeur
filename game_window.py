@@ -147,16 +147,19 @@ class SapeurApp(App):
         Clock.schedule_once(lambda _: self.ll_update())
 
     def ll_update(self):
-        for li, lb in self.lobby_buttons.items():
-            if li not in self.client.lobby_dict.keys():
-                self.ll.ids['container'].remove_widget(lb)
-                self.lobby_buttons.pop(li)
+        #for li, lb in self.lobby_buttons.items():
+           # if li not in self.client.lobby_dict.keys():
+            #   self.ll.ids['container'].remove_widget(lb)
+             #   self.lobby_buttons.pop(li)
         for li, l in self.client.lobby_dict.items():
             if li not in self.lobby_buttons.keys():
-                mb = LobbyButton(text="aaaaaaaaaaaaaaaa")
+                mb = LobbyButton()
+                mb.srcs="resources/revealed-bomb.png"
                 mb.on_press = lambda: self.client.join_lobby(li)
                 self.lobby_buttons[li] = mb
                 self.ll.ids['container'].add_widget(mb)
+
+
 
     def sceldue_start_game(self, board):
         Clock.schedule_once(lambda _: self.start_game(board))
@@ -178,8 +181,9 @@ class SapeurApp(App):
         self.ll = LobbyListScreen(name='lobby_list')
         self.sm = ScreenManager(transition=SlideTransition(direction="right"))
         self.sm.add_widget(MenuScreen(name='menu'))
+
         self.sm.add_widget(SettingsScreen(name='settings'))
-        self.sm.add_widget(LobbyListScreen(name='lobby_list'))
+        self.sm.add_widget(self.ll)
         self.sm.add_widget(self.lobby)
         self.sm.add_widget(self.gs)
         return self.sm
