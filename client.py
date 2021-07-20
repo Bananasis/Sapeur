@@ -1,8 +1,7 @@
 import socket
-import time
 from threading import Thread
-from request import *
-from game_window import SapeurApp
+
+from request import RequestManager, no_cariage_request, game_request, pos_recuest, id_request, lobby_list_request
 
 
 class Client(Thread):
@@ -45,6 +44,12 @@ class Client(Thread):
                 print(error)
                 break
 
+    def create_lobby(self):
+        self.request_manager.make_request(None, "create_lobby_nc_request")
+
+    def join_lobby(self, li):
+        self.request_manager.make_request(li, "connect_lobby_id_request")
+
     def start_game(self):
         if self.lobby_id in self.lobby_dict:
             self.board = self.lobby_dict[self.lobby_id].get_board()
@@ -57,20 +62,14 @@ class Client(Thread):
 
     def set_lobby_id(self, lid):
         self.lobby_id = lid
+        if self.lobby_id in self.lobby_dict:
+            self.game_window.join_lobby()
 
     def set_lobbys(self, lobby_dict):
         self.lobby_dict = lobby_dict
+        self.game_window.sceldue_ll_update()
 
     def update_board(self, view):
         if self.board:
             self.board.update(view)
             self.game_window.update_board()
-
-
-c = Client()
-c.start()
-c.request_manager.make_request(None, "create_lobby_nc_request")
-c.request_manager.make_request(None, "start_game_nc_request")
-while not c.board:
-    time.sleep(1)
-SapeurApp(c).run()

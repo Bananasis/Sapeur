@@ -1,6 +1,8 @@
 import socket
 from threading import Thread
-from request import *
+
+from lobby import Lobby
+from request import RequestManager, id_request, lobby_list_request, no_cariage_request, game_request, pos_recuest
 
 
 class Server(Thread):
@@ -77,7 +79,7 @@ class PlayerHandlingThread(Thread):
                 self.request_manager.get_request()
             except socket.error as error:
                 print(error)
-                self.server.disconect(self)
+                self.server.disconnect(self)
                 break
 
     def create_lobby(self):

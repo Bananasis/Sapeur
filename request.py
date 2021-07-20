@@ -1,4 +1,6 @@
 import json
+from socket import socket
+
 from serialization import *
 
 
@@ -38,8 +40,12 @@ class RequestManager:
     def make_request(self, data, request):
         if request in self.serialize:
             json_str = self.serialize[request](data)
-            print("sent: " + json_str)
-            self.socket.sendall(bytes(json_str, 'utf-8'))
+
+            try:
+                self.socket.sendall(bytes(json_str, 'utf-8'))
+                print("sent: " + json_str)
+            except socket.error as error:
+                print(error)
 
     def manage(self, request, data):
         self.handle[request](data)
