@@ -1,11 +1,17 @@
+import kivy
 from kivy import Config
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.graphics import Rectangle
 from kivy.uix.behaviors import ButtonBehavior
+from kivy.uix.button import Button
 
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.gridlayout import GridLayout
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.scatter import ScatterPlane
+from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition
+
+from client import Client
 
 Config.set('graphics', 'resizable', True)
 from kivy.uix.image import Image
@@ -82,7 +88,29 @@ def make_move(instance):
     instance.parent.parent.game.make_move((instance.cell.x, instance.cell.y))
 
 
+class BackGround(ScatterPlane):
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        texture = Image(source="resources/revealed-bomb.png").texture
+        texture.wrap = 'repeat'
+        texture.uvsize = (50, 50)
+        with self.canvas:
+            Rectangle(size=(2048, 2048), texture=texture)
+
+
 class MenuScreen(Screen):
+    pass
+
+
+class LobbyScreen(Screen):
+    pass
+
+
+class LobbyListScreen(Screen):
+    pass
+
+
+class GameScreen(Screen):
     pass
 
 
@@ -90,16 +118,55 @@ class SettingsScreen(Screen):
     pass
 
 
+class LobbyButton(Button):
+    pass
+
+
 class SapeurApp(App):
+
+    def __init__(self, client, **kwargs):
+        super().__init__(**kwargs)
+        self.lobby_buttons = {}
+        self.client = client
+        client.game_window = self
+        client.start()
+        self.lobby = None
+        self.ll = None
+        self.sm = None
+
+    def sceldue_ll_update(self):
+        Clock.schedule_once(lambda _: self.ll_update())
+
+    def ll_update(self):
+        for li, lb in self.lobby_buttons.items():
+            if li not in self.client.lobby_dict.keys():
+                self.ll.ids.layout.ids.scroll.remove_widget(lb)
+                self.lobby_buttons.pop(li)
+        for li, l in self.client.lobby_dict.items():
+            if li not in self.lobby_buttons.keys():
+                mb = LobbyButton()
+                mb.on_press = lambda: self.client.join_lobby(li)
+                self.lobby_buttons[li] = mb
+                self.ll.add_widget(mb)
+
+    def join_lobby(self):
+        Clock.schedule_once(lambda _: self.set_current("lobby"))
+
+    def set_current(self, new_cur):
+        self.sm.current = new_cur
 
     def build(self):
         # Create the screen manager
-        sm = ScreenManager()
-        sm.add_widget(MenuScreen(name='menu'))
-        sm.add_widget(SettingsScreen(name='settings'))
-
-        return sm
+        self.lobby = LobbyScreen(name='lobby')
+        self.ll = LobbyListScreen(name='lobby_list')
+        self.sm = ScreenManager(transition=SlideTransition(direction="right"))
+        self.sm.add_widget(MenuScreen(name='menu'))
+        self.sm.add_widget(SettingsScreen(name='settings'))
+        self.sm.add_widget(LobbyListScreen(name='lobby_list'))
+        self.sm.add_widget(self.lobby)
+        self.sm.add_widget(GameScreen(name='game'))
+        return self.sm
 
 
 if __name__ == '__main__':
-    SapeurApp().run()
+    SapeurApp(Client()).run()

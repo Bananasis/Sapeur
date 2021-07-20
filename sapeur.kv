@@ -1,7 +1,15 @@
 #:kivy 1.0.9
+#: import Clock kivy.clock.Clock
+#: import SlideTransition kivy.uix.screenmanager.SlideTransition
 
+
+<LobbyButton@Button>:
 
 <MenuButton@Button>:
+    size_hint_y: None
+    size_hint_x: None
+    height: self.width
+    width: min([self.parent.width,self.parent.height])/2
     txt: "placeholder"
     srcs: 'resources/empty-block.png'
     FloatLayout:
@@ -21,39 +29,108 @@
             text: self.parent.parent.txt
 
 <MenuScreen>:
+    FloatLayout:
+        size_hint: (1,1)
+        pos_hint: {'center_y': .5,'center_x': .5}
+        BackGround:
+        GridLayout:
+            cols:2
+            rows:2
+            size_hint: None,None
+
+            width: min([self.parent.width,self.parent.height])*0.8
+            height: self.width
+
+            pos_hint: {'center_y': .5,'center_x': .5}
 
 
-    GridLayout:
-        cols:2
+
+            MenuButton:
+                on_press:
+                    self.srcs = 'resources/1.png'
+                    self.txt = ''
+                    root.manager.current = 'game'
+                srcs:'resources/empty-block.png'
+                txt:'Singleplayer'
+
+            MenuButton:
+                on_press:
+                    self.srcs = 'resources/bomb-at-clicked-block.png'
+                    self.txt = ''
+                    Clock.schedule_once(app.stop,0.5)
+                srcs:'resources/empty-block.png'
+                txt:'Exit'
+
+            MenuButton:
+                on_press:
+                    self.srcs = 'resources/4.png'
+                    self.txt = ''
+                    app.root.transition = SlideTransition(direction="right")
+                    app.root.current = 'lobby_list'
+
+                srcs:'resources/empty-block.png'
+                txt:'Multiplayer'
+
+            MenuButton:
+                on_press:
+                    self.srcs = 'resources/flag.png'
+                    self.txt = ''
+                    root.manager.current = 'settings'
+
+                srcs:'resources/empty-block.png'
+                txt:'Settings'
+
+
+
+<LobbyButton@Button>:
+
+<LobbyListScreen>:
+    FloatLayout:
+        id: 'layout'
+        size_hint: (1,1)
+        pos_hint: {'center_y': .5,'center_x': .5}
+        BackGround:
+        ScrollView:
+            id:scroll
+            do_scroll_x: False
+            do_scroll_y: True
+
         MenuButton:
-            on_press: root.manager.current = 'settings'
+            width: min([self.parent.width,self.parent.height])/5
+            height: self.width
+            pos_hint: {'y': .0,'x': .0}
+            on_press:
+                self.srcs = 'resources/bomb-at-clicked-block.png'
+                self.txt = ''
+                root.manager.current = 'menu'
             srcs:'resources/empty-block.png'
-            txt:'Singleplayer'
+            txt:'Back'
 
         MenuButton:
-            on_press: root.manager.current = 'settings'
+            width: min([self.parent.width,self.parent.height])/5
+            height: self.width
+            pos_hint: {'y': .0,'right': 1}
+            on_press:
+                self.srcs = 'resources/bomb-at-clicked-block.png'
+                self.txt = ''
+                app.client.create_lobby()
             srcs:'resources/empty-block.png'
-            txt:'Exit'
+            txt:'Back'
 
+<LobbyScreen>:
+    FloatLayout:
+        size_hint: (1,1)
+        pos_hint: {'center_y': .5,'center_x': .5}
+        BackGround:
         MenuButton:
-            on_press: root.manager.current = 'settings'
+            width: min([self.parent.width,self.parent.height])/5
+            height: self.width
+            pos_hint: {'y': .0,'right': 1}
+            on_press:
+                self.srcs = 'resources/bomb-at-clicked-block.png'
+                self.txt = ''
             srcs:'resources/empty-block.png'
-            txt:'Multiplayer'
-
-        MenuButton:
-            on_press: root.manager.current = 'settings'
-            srcs:'resources/empty-block.png'
-            txt:'Settings'
-
-<SettingsScreen>:
-    BoxLayout:
-        MenuButton:
-            on_press: root.manager.current = 'menu'
-            srcs:'resources/8.png'
-            txt:'LOLOLOLOLOL'
-
-
-
+            txt:'Back'
 
 
 
